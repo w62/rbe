@@ -1,37 +1,103 @@
-use std::mem;
+#[derive(Debug)]
+struct Person {
+    name: String,
+    age: u8,
+}
 
-// This function borrows a slice
+// A unit struct
+struct Unit;
 
-fn analyze_slice(slice: &[i32]) {
-    println!("[Debug] slice is {:?}", slice);
-    println!("first element of the slice: {}", slice[0]);
-    println!("the slice has {} elements.", slice.len());
+// A tuple struct
+struct Pair(i32, f32);
+
+// A struct with two fields
+struct Point {
+    x: f32,
+    y: f32,
+}
+
+// Structs can be reused as fields of another struct
+#[allow(dead_code)]
+struct Rectangle {
+    // A rectangle can be specified by where the top left and bottom right
+    // corners are in space.
+    top_left: Point,
+    bottom_right: Point,
 }
 
 fn main() {
-    // Fixed-size array (type signature is superfluous)
-    let xs: [i32; 5] = [1, 2, 3, 4, 5];
+    // Create struct with field init shorthand
+    let name = String::from("Peter");
+    let age = 27;
+    let peter = Person { name, age };
 
-    // All elements can be initialized to the same value
-    let mut ys:[i32; 500] = [1; 500];
+    // Print debug struct
+    println!("{:?}", peter);
 
-    // Indexing starts at 0
-    println!("first element of the array: {}", xs[0]);
-    println!("second element of the array: {}", xs[1]);
+    // Instantiate a `Point`
+    let point: Point = Point { x: 10.3, y: 0.4 };
 
-    // `len` returns the count of elements in the array
-    println!("number of elements in array: {}", xs.len());
+    // Access the fields of the point
+    println!("point coordinates: ({}, {})", point.x, point.y);
 
-    // Arrrays are stack allocated
-    println!("array occupies {} bytes", mem::size_of_val(&xs));
+    // Make a new point by using struct update syntax to use the fields of our
+    // other one
+    let bottom_right = Point { x: 5.2, ..point };
+    let bottom_right = Point { x: 5.2, y: 0.2};
 
-    // Slices can point to a section of an array
-    // They are of the form [starting_index .. ending_index]
-    // start_index is the first position in the slice
-    // ending_index is one more than the last position in the slice
-    println!("borrow a section of the array as a slice");
-    analyze_slice(&ys[1 .. 4]);
+    // Destructure the point using a `let` binding
+    let Point {
+        x: left_edge,
+        y: top_edge,
+    } = point;
 
-    // Out of bound index causes compile error
-//    println!("{}", xs[5]);
+    let _rectangle = Rectangle {
+        // struct instantiation is an expression too
+        top_left: Point {
+            x: left_edge,
+            y: top_edge,
+        },
+        bottom_right: bottom_right,
+    };
+
+    // Instantiate a unit struct
+    let _unit = Unit;
+
+    // Instantiate a tuple struct
+    let pair = Pair(1, 0.1);
+
+    // Access the fields a tuple struct
+    println!("pair contains {:?} and {:?}", pair.0, pair.1);
+
+    // Destructure a tuple struct
+    let Pair(integer, decimal) = pair;
+
+    println!("pair contains {:?} and {:?}", integer, decimal);
+
+    println!("===========");
+    println!("_rectangle.top_left.x = {}", _rectangle.top_left.x);
+    println!("_rectangle.top_left.y = {}", _rectangle.top_left.y);
+    println!("_rectangle.bottom_right.x = {}", _rectangle.bottom_right.x);
+    println!("_rectangle.bottom_right.y = {}", _rectangle.bottom_right.y);
+    println!("===========");
+
+    println!("aread of rectangle = {}", rect_area(_rectangle));
+}
+
+fn rect_area(rect: Rectangle) -> f32 {
+    let top_left: Point = rect.top_left;
+    let bottom_right = rect.bottom_right;
+
+    (top_left.x - bottom_right.x) * (top_left.y - bottom_right.y)
+}
+
+fn sq (point: Point, side: f32) -> Rectangle {
+    let mut rect = Rectanlge {
+        top_left = Point {
+            x: left_edge,
+            y: top_edge
+        },
+        bottom_right: bottom_right,
+    };
+    todo!()
 }
